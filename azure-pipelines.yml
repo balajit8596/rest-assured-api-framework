@@ -1,0 +1,39 @@
+# Azure DevOps pipeline: build, run tests, publish results, fail the build on a failed test.
+trigger:
+  branches:
+    include: [main]
+
+pr:
+  branches:
+    include: [main]
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  # Fast, offline tests (virtualized REST/SOAP and database checks). Safe for every pull request.
+  - task: Maven@4
+    displayName: Run virtualized tests
+    inputs:
+      mavenPomFile: pom.xml
+      goals: test
+      options: -B -Dgroups=virtual
+      publishJUnitResults: true
+      testResultsFiles: '**/surefire-reports/TEST-*.xml'
+      testRunTitle: Virtualized tests
+      javaHomeOption: JDKVersion
+      jdkVersionOption: '1.17'
+
+  # Smoke tests against the live API. Reported, but a network problem must not block the pipeline.
+  - task: Maven@4
+    displayName: Run live smoke tests
+    continueOnError: true
+    inputs:
+      mavenPomFile: pom.xml
+      goals: test
+      options: -B -Dgroups=live
+      publishJUnitResults: true
+      testResultsFiles: '**/surefire-reports/TEST-*.xml'
+      testRunTitle: Live API tests
+      javaHomeOption: JDKVersion
+      jdkVersionOption: '1.17'

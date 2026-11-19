@@ -1,0 +1,105 @@
+openapi: 3.0.3
+info:
+  title: Posts API (JSONPlaceholder subset)
+  version: 1.0.0
+  description: >
+    OpenAPI definition of the posts endpoints used by this framework.
+    Import it into Parasoft SOAtest to generate REST client tests.
+servers:
+  - url: https://jsonplaceholder.typicode.com
+paths:
+  /posts:
+    get:
+      summary: List posts
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    post:
+      summary: Create a post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPost'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+  /posts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get one post
+      responses:
+        '200':
+          description: The post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Not found
+    put:
+      summary: Replace a post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+    delete:
+      summary: Delete a post
+      responses:
+        '200':
+          description: Deleted
+components:
+  schemas:
+    NewPost:
+      type: object
+      required: [userId, title, body]
+      properties:
+        userId:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+    Post:
+      type: object
+      required: [userId, id, title, body]
+      properties:
+        userId:
+          type: integer
+        id:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
